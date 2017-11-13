@@ -45,5 +45,3 @@ https://stackoverflow.com/a/42091255
 ### run
 
     spark-submit recommender-assembly-1.0.jar
-
-2:29
