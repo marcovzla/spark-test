@@ -25,10 +25,7 @@ object Recommender {
   type RatingPairs = Iterable[RatingPair]
   type Similarity = Double
 
-  // we ignore movie pairs if we have less than this amount of reviews for them
-  val minCount = 1000
-
-  val movieNames = readMovieNames("ml-1m/movies.dat") // used for displaying results only
+  val movieNames = readMovieNames("movies.dat") // used for displaying results only
 
   def main(args: Array[String]): Unit = {
 
@@ -41,6 +38,9 @@ object Recommender {
     val sc = new SparkContext(conf)
 
     val movieOfInterest = args(0).toInt
+
+    // we ignore movie pairs if we have less than this amount of reviews for them
+    val minCount = 1000
 
     def hasMovieOfInterest(d: (MoviePair, (Similarity, Int))): Boolean = {
       val ((m1, m2), (sim, count)) = d
@@ -60,11 +60,15 @@ object Recommender {
 
     // find pairs of movies reviewed by the same user,
     // but don't include pairs if they are the same movie!
-    val joinedRatings: RDD[(User, (MovieRating, MovieRating))] = ratings.join(ratings).filter(isNotSameMovie)
+    val joinedRatings: RDD[(User, (MovieRating, MovieRating))] = ratings.join(ratings).filter {
+      case (user, (mr1, mr2)) => mr1.movie != mr2.movie
+    }
 
     // reformat data as ((movie, movie), (rating, rating))
     // this will give us a pair-rdd where the key is a movie pair and the value a rating pair
-    val moviePairs: RDD[(MoviePair, RatingPair)] = joinedRatings.map(mkPair)
+    val moviePairs: RDD[(MoviePair, RatingPair)] = joinedRatings.map {
+      case (user, (mr1, mr2)) => ((mr1.movie, mr2.movie), (mr1.rating, mr2.rating))
+    }
 
     // cosine similarity: https://en.wikipedia.org/wiki/Cosine_similarity#Definition
     // ---
@@ -109,18 +113,6 @@ object Recommender {
 
     sc.stop()
 
-  }
-
-  // FIN
-
-  def isNotSameMovie(userMoviePair: (User, (MovieRating, MovieRating))): Boolean = {
-    val (user, (mr1, mr2)) = userMoviePair
-    mr1.movie != mr2.movie
-  }
-
-  def mkPair(userMoviePair: (User, (MovieRating, MovieRating))): (MoviePair, RatingPair) = {
-    val (user, (mr1, mr2)) = userMoviePair
-    ((mr1.movie, mr2.movie), (mr1.rating, mr2.rating))
   }
 
   def readMovieNames(name: String): Map[Int, String] = {

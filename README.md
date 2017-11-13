@@ -37,8 +37,7 @@ Upload data and fat jar to s3 bucket so that they can be retrieved from the clus
 - download fat jar and names file
 
     aws s3 cp s3://lum-ai-bucket/ml-1m/recommender-assembly-1.0.jar .
-    mkdir ml-1m
-    aws s3 cp s3://lum-ai-bucket/ml-1m/movies.dat ml-1m/
+    aws s3 cp s3://lum-ai-bucket/ml-1m/movies.dat .
 
 https://stackoverflow.com/a/42091255
 
