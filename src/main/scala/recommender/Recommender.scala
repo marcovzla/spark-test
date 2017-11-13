@@ -61,7 +61,7 @@ object Recommender {
     // find pairs of movies reviewed by the same user,
     // but don't include pairs if they are the same movie!
     val joinedRatings: RDD[(User, (MovieRating, MovieRating))] = ratings.join(ratings).filter {
-      case (user, (mr1, mr2)) => mr1.movie != mr2.movie
+      case (user, (mr1, mr2)) => mr1.movie < mr2.movie
     }
 
     // reformat data as ((movie, movie), (rating, rating))
