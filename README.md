@@ -1,5 +1,7 @@
 # recommender
 
+Based on an example presented in "Apache Spark 2.0 with Scala - Hands On with Big Data!"
+
 ## Instructions to run recommender on AWS EMR.
 
 https://aws.amazon.com/emr/
